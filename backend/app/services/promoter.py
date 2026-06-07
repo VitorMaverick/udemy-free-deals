@@ -1,6 +1,7 @@
 """Módulo promotor: envia cursos para canais de divulgação (Telegram, Discord)."""
 
 import asyncio
+import os
 import random
 from datetime import datetime
 
@@ -38,7 +39,10 @@ def _build_promotion_message(course: Course) -> str:
 
 async def post_to_discord(webhook_url: str, course: Course) -> tuple[bool, str]:
     """Envia mensagem para webhook do Discord."""
-    message = _build_promotion_message(course).replace("*", "**")  # Discord usa ** para bold
+    if os.environ.get("TESTING_MODE") == "true":
+        logger.info(f"[MOCK] post_to_discord({webhook_url[:30]}...)")
+        return True, ""
+    message = _build_promotion_message(course).replace("*", "**")
     payload = {"content": message}
     try:
         async with httpx.AsyncClient() as client:
@@ -53,6 +57,9 @@ async def post_to_discord(webhook_url: str, course: Course) -> tuple[bool, str]:
 
 async def post_to_telegram(channel: str, course: Course) -> tuple[bool, str]:
     """Envia mensagem para canal do Telegram via Bot API."""
+    if os.environ.get("TESTING_MODE") == "true":
+        logger.info(f"[MOCK] post_to_telegram({channel})")
+        return True, ""
     bot_token = settings.telegram_bot_token
     if not bot_token:
         return False, "TELEGRAM_BOT_TOKEN não configurado"

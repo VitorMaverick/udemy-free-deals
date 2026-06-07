@@ -1,0 +1,18 @@
+[2026-06-07 05:33:28] 🧪 Teste E2E - Módulo Promotor
+[2026-06-07 05:33:28]    Intervalo: 15 min | Ciclos: 1
+[2026-06-07 05:33:28] ==================================================
+[2026-06-07 05:33:28] Iniciando ciclo #1
+[2026-06-07 05:33:28] ==================================================
+[2026-06-07 05:33:28] Serviços: Backend OK, Frontend OK
+[2026-06-07 05:33:28]   API: Criar categoria... OK (ID 5630196e)
+[2026-06-07 05:33:28]   API: Nenhum curso pending, pulando associação
+[2026-06-07 05:33:28]   API: Disparar promoter... OK
+[2026-06-07 05:33:31]   API: Promotion logs... OK (0 registros)
+[2026-06-07 05:33:32]   API: Descobrir comunidades... OK (telegram=4, reddit=0)
+[2026-06-07 05:33:32]   API: Adicionar comunidade... OK
+[2026-06-07 05:33:32]   API: Trending posts... OK (twitter=1, reddit=0)
+[2026-06-07 05:33:32]   API: Gerar comentário... OK
+[2026-06-07 05:33:32]   Frontend: Playwright não instalado, pulando testes de frontend
+[2026-06-07 05:33:32]   Logs: Nenhum erro detectado
+[2026-06-07 05:33:32] ✅ Ciclo #1 concluído com sucesso
+[2026-06-07 05:33:32] ✅ 1 ciclos concluídos com sucesso!
