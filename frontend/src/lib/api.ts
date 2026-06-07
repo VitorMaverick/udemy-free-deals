@@ -84,6 +84,43 @@ export interface PostFull {
   courses: Course[];
 }
 
+export interface CategoryItem {
+  id: string;
+  name: string;
+  description: string;
+  telegram_channels: string[];
+  discord_webhooks: string[];
+  subreddits: string[];
+  twitter_keywords: string[];
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface CategoryCreate {
+  name: string;
+  description?: string;
+  telegram_channels?: string[];
+  discord_webhooks?: string[];
+  subreddits?: string[];
+  twitter_keywords?: string[];
+}
+
+export interface PromotionLogItem {
+  id: string;
+  course_id: string;
+  platform: string;
+  target: string;
+  status: string;
+  error_message: string;
+  sent_at: string;
+}
+
+export interface TelegramChannel {
+  username: string;
+  title: string;
+  members: number;
+}
+
 export const api = {
   // Public
   getCourses: (params: Record<string, string>) =>
@@ -138,5 +175,52 @@ export const api = {
     request<{ ok: boolean }>(`/api/admin/courses/${id}`, {
       method: "DELETE",
       headers: authHeaders(token),
+    }),
+
+  // Promoter / Categories
+  getAdminCategories: (token: string) =>
+    request<CategoryItem[]>("/api/admin/categories", { headers: authHeaders(token) }),
+
+  createCategory: (token: string, data: CategoryCreate) =>
+    request<CategoryItem>("/api/admin/categories", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  updateCategory: (token: string, id: string, data: Partial<CategoryCreate>) =>
+    request<CategoryItem>(`/api/admin/categories/${id}`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  deleteCategory: (token: string, id: string) =>
+    request<{ ok: boolean }>(`/api/admin/categories/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(token),
+    }),
+
+  setCourseCategory: (token: string, courseId: string, categoryId: string | null) =>
+    request<Course>(`/api/admin/courses/${courseId}/category`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify({ category_id: categoryId }),
+    }),
+
+  runPromoter: (token: string) =>
+    request<{ message: string }>("/api/admin/promoter/run", {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
+
+  getPromotionLogs: (token: string) =>
+    request<PromotionLogItem[]>("/api/admin/promotion-logs", { headers: authHeaders(token) }),
+
+  searchTelegram: (token: string, keyword: string) =>
+    request<TelegramChannel[]>("/api/admin/search-telegram", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ keyword }),
     }),
 };

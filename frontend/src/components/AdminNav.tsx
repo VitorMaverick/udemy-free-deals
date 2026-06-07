@@ -4,6 +4,8 @@ const links = [
   { to: "/admin/dashboard", label: "📊 Dashboard" },
   { to: "/admin/crawler-results", label: "🔍 Detectados" },
   { to: "/admin/ready-to-publish", label: "✅ Publicar" },
+  { to: "/admin/categories", label: "📂 Categorias" },
+  { to: "/admin/promoter", label: "📣 Promoter" },
   { to: "/admin/logs", label: "📋 Logs" },
 ];
 

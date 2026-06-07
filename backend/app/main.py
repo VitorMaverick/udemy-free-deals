@@ -14,6 +14,7 @@ from app.database import Base, engine, async_session
 from app.models import AdminUser
 from app.auth import hash_password
 from app.routers import admin, courses, posts
+from app.routers.promoter import router as promoter_router
 from app.services.scheduler import start_scheduler
 
 STATIC_DIR = Path("/app/static") if os.path.exists("/app/static") else Path(__file__).parent.parent / "static"
@@ -60,6 +61,7 @@ app.add_middleware(
 app.include_router(courses.router)
 app.include_router(admin.router)
 app.include_router(posts.router)
+app.include_router(promoter_router)
 
 
 @app.get("/api/health")

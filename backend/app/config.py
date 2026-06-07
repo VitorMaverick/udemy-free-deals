@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     admin_username: str = "admin"
     admin_password: str = "admin123"
     affiliate_tag: str = ""
+    telegram_bot_token: str = ""
     crawler_interval_hours: int = 6
     cors_origins: str = "http://localhost:5173"
     access_token_expire_minutes: int = 60 * 24

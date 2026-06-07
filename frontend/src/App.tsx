@@ -6,6 +6,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CrawlerResults from "./pages/Admin/CrawlerResults";
 import ReadyToPublish from "./pages/Admin/ReadyToPublish";
 import Logs from "./pages/Admin/Logs";
+import Categories from "./pages/Admin/Categories";
+import Promoter from "./pages/Admin/Promoter";
 import Header from "./components/Header";
 
 export default function App() {
@@ -20,6 +22,8 @@ export default function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/crawler-results" element={<CrawlerResults />} />
           <Route path="/admin/ready-to-publish" element={<ReadyToPublish />} />
+          <Route path="/admin/categories" element={<Categories />} />
+          <Route path="/admin/promoter" element={<Promoter />} />
           <Route path="/admin/logs" element={<Logs />} />
         </Routes>
       </main>

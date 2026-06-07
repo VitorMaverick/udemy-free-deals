@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, Integer, String, Text, ForeignKey
+from sqlalchemy import Boolean, DateTime, Float, Integer, String, Text, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -9,6 +9,21 @@ from app.database import Base
 
 def gen_uuid() -> str:
     return str(uuid.uuid4())
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    description: Mapped[str] = mapped_column(String(500), default="")
+    telegram_channels: Mapped[list] = mapped_column(JSON, default=list)
+    discord_webhooks: Mapped[list] = mapped_column(JSON, default=list)
+    subreddits: Mapped[list] = mapped_column(JSON, default=list)
+    twitter_keywords: Mapped[list] = mapped_column(JSON, default=list)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Course(Base):
@@ -23,6 +38,7 @@ class Course(Base):
     instructor: Mapped[str] = mapped_column(String(200), default="")
     image_url: Mapped[str] = mapped_column(String(1000), default="")
     category: Mapped[str] = mapped_column(String(100), default="", index=True)
+    category_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("categories.id"), nullable=True)
     language: Mapped[str] = mapped_column(String(50), default="")
     rating: Mapped[float] = mapped_column(Float, default=0.0)
     students_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -33,19 +49,31 @@ class Course(Base):
     coupon_code: Mapped[str] = mapped_column(String(255), default="")
     affiliate_link: Mapped[str] = mapped_column(String(500), default="")
     is_free: Mapped[bool] = mapped_column(Boolean, default=True)
-    # Status: pending | manual_link_created | published | expired
     status: Mapped[str] = mapped_column(String(30), default="pending", index=True)
+    promoted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     detected_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     manual_link_created_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class PromotionLog(Base):
+    __tablename__ = "promotion_logs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    course_id: Mapped[str] = mapped_column(String(36), ForeignKey("courses.id"))
+    platform: Mapped[str] = mapped_column(String(50))
+    target: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(20))
+    error_message: Mapped[str] = mapped_column(Text, default="")
+    sent_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class Post(Base):
     __tablename__ = "posts"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
-    slug: Mapped[str] = mapped_column(String(20), unique=True, index=True)  # YYYY-MM-DD
+    slug: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     title: Mapped[str] = mapped_column(String(300))
     content_html: Mapped[str] = mapped_column(Text, default="")
     published_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -53,7 +81,6 @@ class Post(Base):
 
 
 class PostCourse(Base):
-    """Associação entre post e cursos incluídos nele."""
     __tablename__ = "post_courses"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
