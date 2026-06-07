@@ -255,6 +255,53 @@ udemy-free-deals/
 
 ---
 
+## 📣 Configuração do Módulo Promotor (Divulgação Automática)
+
+O promotor envia cursos publicados para canais do Telegram e Discord automaticamente.
+
+### Configurar Bot do Telegram
+
+1. Abra o Telegram e converse com [@BotFather](https://t.me/BotFather)
+2. Envie `/newbot` e siga as instruções (escolha nome e username)
+3. O BotFather vai te dar um **token** tipo: `7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxx`
+4. Configure no Fly.io:
+   ```bash
+   fly secrets set TELEGRAM_BOT_TOKEN="7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxx" --app udemy-free-deals
+   ```
+5. **Adicione o bot como administrador** no canal onde quer postar (abra o canal → Administradores → Adicionar → procure o bot)
+
+### Configurar Webhook do Discord
+
+1. No Discord, vá no canal desejado → Configurações → Integrações → Webhooks → Novo Webhook
+2. Copie a URL (tipo: `https://discord.com/api/webhooks/1234567890/abcdef...`)
+3. No painel admin do site, vá em **📂 Categorias** → crie/edite uma categoria → adicione a URL no campo "Webhooks Discord"
+
+### Fluxo de Uso
+
+1. **Criar categoria** (ex: "Python") no admin → `/admin/categories`
+2. **Adicionar canais** — canais Telegram (ex: `@meucanaldetestes`) e/ou webhooks Discord
+3. **Associar cursos** — na listagem de cursos, selecione a categoria para cada curso
+4. **Executar divulgação** — vá em `/admin/promoter` e clique "🚀 Executar Divulgação Agora"
+   - Ou espere o scheduler automático (roda todo dia às 10h)
+5. **Ver logs** — na mesma página, a tabela mostra sucesso/falha de cada envio
+
+### Variáveis de Ambiente do Promotor
+
+| Variável | Obrigatória | Descrição |
+|----------|-------------|-----------|
+| `TELEGRAM_BOT_TOKEN` | Só se usar Telegram | Token do bot criado no @BotFather |
+
+Discord não precisa de variável extra — as URLs de webhook ficam cadastradas dentro de cada categoria no banco.
+
+### Scheduler Automático
+
+- **Crawler:** roda a cada 6 horas (busca novos cursos gratuitos)
+- **Promoter:** roda todo dia às 10h (divulga cursos publicados que ainda não foram promovidos)
+
+Para alterar horários, edite `backend/app/services/scheduler.py`.
+
+---
+
 ## 🐛 Problemas Comuns
 
 | Problema | Causa | Solução |
