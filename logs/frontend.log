@@ -1,0 +1,23 @@
+
+> udemy-free-deals@1.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v5.3.1[39m  [2mready in [0m[1m175[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m3:49:57 AM[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m3:49:57 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m4:52:03 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/CourseDetail.tsx, /src/pages/AdminDashboard.tsx, /src/pages/AdminLogin.tsx, /src/pages/Admin/CrawlerResults.tsx, /src/pages/Admin/ReadyToPublish.tsx, /src/pages/Admin/Logs.tsx, /src/components/CourseCard.tsx[22m
+[2m4:52:10 AM[22m [36m[1m[vite][22m[39m [32m.env changed, restarting server...[39m
+[2m4:52:10 AM[22m [36m[1m[vite][22m[39m server restarted.
+[2m4:58:34 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/CourseDetail.tsx, /src/pages/AdminLogin.tsx, /src/pages/AdminDashboard.tsx, /src/pages/Admin/CrawlerResults.tsx, /src/pages/Admin/Logs.tsx, /src/pages/Admin/ReadyToPublish.tsx, /src/components/CourseCard.tsx[22m
+[2m5:05:25 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/AdminDashboard.tsx, /src/index.css[22m
+[2m5:05:34 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/AdminDashboard.tsx, /src/index.css[22m
+[2m5:05:42 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/CrawlerResults.tsx, /src/index.css[22m
+[2m5:05:48 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/CrawlerResults.tsx, /src/index.css[22m
+[2m5:05:53 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/ReadyToPublish.tsx, /src/index.css[22m
+[2m5:05:59 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/ReadyToPublish.tsx, /src/index.css[22m
+[2m5:06:04 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/Logs.tsx, /src/index.css[22m
+[2m5:06:10 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Admin/Logs.tsx, /src/index.css[22m

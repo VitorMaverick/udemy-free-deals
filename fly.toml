@@ -1,0 +1,20 @@
+app = 'udemy-free-deals'
+primary_region = 'gru'
+
+[build]
+
+[env]
+  CORS_ORIGINS = "https://udemy-free-deals.fly.dev"
+  CRAWLER_INTERVAL_HOURS = "6"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1

@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/udemy_deals
+      - SECRET_KEY=dev-secret-key
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - CORS_ORIGINS=http://localhost:5173
+      - CRAWLER_INTERVAL_HOURS=6
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: udemy_deals
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
