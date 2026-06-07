@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     admin_password: str = "admin123"
     affiliate_tag: str = ""
     telegram_bot_token: str = ""
+    twitter_bearer_token: str = ""
+    reddit_client_id: str = ""
+    reddit_client_secret: str = ""
+    reddit_user_agent: str = "UdemyFreeDeals/1.0"
     crawler_interval_hours: int = 6
     cors_origins: str = "http://localhost:5173"
     access_token_expire_minutes: int = 60 * 24

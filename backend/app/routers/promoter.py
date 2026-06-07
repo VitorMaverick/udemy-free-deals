@@ -11,7 +11,7 @@ from app.schemas import (
     CategoryCreate, CategoryOut, CategoryUpdate,
     CourseCategoryRequest, CourseOut, PromotionLogOut,
 )
-from app.services.promoter import promote_new_courses, search_telegram_channels
+from app.services.promoter import promote_new_courses
 
 router = APIRouter(prefix="/api/admin", tags=["promoter"])
 
@@ -109,4 +109,90 @@ async def search_telegram(body: dict, _: str = Depends(get_current_admin)):
     keyword = body.get("keyword", "")
     if not keyword:
         raise HTTPException(status_code=400, detail="keyword é obrigatório")
-    return search_telegram_channels(keyword)
+    from app.services.community_finder import search_telegram_communities
+    return await search_telegram_communities(keyword)
+
+
+# --- Discover communities for a category ---
+@router.post("/categories/{id}/discover-communities")
+async def discover_communities(id: str, _: str = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).where(Category.id == id))
+    cat = result.scalar_one_or_none()
+    if not cat:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+
+    from app.services.community_finder import search_telegram_communities, search_reddit_communities
+    keyword = cat.name
+
+    telegram = await search_telegram_communities(keyword)
+    reddit = await search_reddit_communities(keyword)
+
+    # Salvar nos campos discovered
+    cat.discovered_telegram = telegram
+    cat.discovered_reddit = reddit
+    cat.updated_at = datetime.utcnow()
+    await db.commit()
+
+    return {"telegram": telegram, "reddit": reddit}
+
+
+# --- Add discovered community to active list ---
+@router.post("/categories/{id}/add-community")
+async def add_community(id: str, body: dict, _: str = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).where(Category.id == id))
+    cat = result.scalar_one_or_none()
+    if not cat:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+
+    platform = body.get("platform")  # 'telegram' or 'reddit'
+    value = body.get("value")  # channel username or subreddit name
+
+    if platform == "telegram" and value:
+        channels = list(cat.telegram_channels or [])
+        if value not in channels:
+            channels.append(value)
+            cat.telegram_channels = channels
+    elif platform == "reddit" and value:
+        subs = list(cat.subreddits or [])
+        if value not in subs:
+            subs.append(value)
+            cat.subreddits = subs
+    else:
+        raise HTTPException(status_code=400, detail="platform e value obrigatórios")
+
+    cat.updated_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(cat)
+    return {"ok": True, "telegram_channels": cat.telegram_channels, "subreddits": cat.subreddits}
+
+
+# --- Trending posts for a category ---
+@router.post("/categories/{id}/trending-posts")
+async def get_trending_posts(id: str, _: str = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Category).where(Category.id == id))
+    cat = result.scalar_one_or_none()
+    if not cat:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+
+    from app.services.trending_posts import fetch_trending_twitter, fetch_trending_reddit
+
+    keywords = cat.twitter_keywords or [cat.name]
+    subreddits = cat.subreddits or None
+
+    twitter_posts = await fetch_trending_twitter(keywords)
+    reddit_posts = await fetch_trending_reddit(keywords, subreddits)
+
+    return {"twitter": twitter_posts, "reddit": reddit_posts}
+
+
+# --- Generate comment for a trending post ---
+@router.post("/trending-posts/comment")
+async def gen_comment(body: dict, _: str = Depends(get_current_admin)):
+    from app.services.trending_posts import generate_comment
+    comment = generate_comment(
+        post=body.get("post", {}),
+        course_title=body.get("course_title", ""),
+        category_name=body.get("category_name", ""),
+        affiliate_link=body.get("affiliate_link", ""),
+    )
+    return {"comment": comment, "post_url": body.get("post", {}).get("url", "")}

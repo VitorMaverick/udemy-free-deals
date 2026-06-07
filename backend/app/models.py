@@ -21,6 +21,8 @@ class Category(Base):
     discord_webhooks: Mapped[list] = mapped_column(JSON, default=list)
     subreddits: Mapped[list] = mapped_column(JSON, default=list)
     twitter_keywords: Mapped[list] = mapped_column(JSON, default=list)
+    discovered_telegram: Mapped[list] = mapped_column(JSON, default=list)
+    discovered_reddit: Mapped[list] = mapped_column(JSON, default=list)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -67,6 +69,16 @@ class PromotionLog(Base):
     status: Mapped[str] = mapped_column(String(20))
     error_message: Mapped[str] = mapped_column(Text, default="")
     sent_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class TrendingPostCache(Base):
+    __tablename__ = "trending_posts_cache"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    category_id: Mapped[str] = mapped_column(String(36), ForeignKey("categories.id"))
+    platform: Mapped[str] = mapped_column(String(20))
+    post_data: Mapped[list] = mapped_column(JSON, default=list)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class Post(Base):

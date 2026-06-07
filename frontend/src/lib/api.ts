@@ -223,4 +223,30 @@ export const api = {
       headers: authHeaders(token),
       body: JSON.stringify({ keyword }),
     }),
+
+  discoverCommunities: (token: string, categoryId: string) =>
+    request<{ telegram: any[]; reddit: any[] }>(`/api/admin/categories/${categoryId}/discover-communities`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
+
+  addCommunity: (token: string, categoryId: string, platform: string, value: string) =>
+    request<any>(`/api/admin/categories/${categoryId}/add-community`, {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify({ platform, value }),
+    }),
+
+  getTrendingPosts: (token: string, categoryId: string) =>
+    request<{ twitter: any[]; reddit: any[] }>(`/api/admin/categories/${categoryId}/trending-posts`, {
+      method: "POST",
+      headers: authHeaders(token),
+    }),
+
+  generateComment: (token: string, body: any) =>
+    request<{ comment: string; post_url: string }>("/api/admin/trending-posts/comment", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(body),
+    }),
 };
