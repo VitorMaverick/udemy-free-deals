@@ -257,48 +257,132 @@ udemy-free-deals/
 
 ## 📣 Configuração do Módulo Promotor (Divulgação Automática)
 
-O promotor envia cursos publicados para canais do Telegram e Discord automaticamente.
+O promotor envia cursos publicados para canais do Telegram e Discord automaticamente, e permite descobrir comunidades e trending posts para divulgação semi-automática.
 
-### Configurar Bot do Telegram
+### Obter Credenciais de Cada Plataforma
+
+#### 🤖 Telegram Bot
 
 1. Abra o Telegram e converse com [@BotFather](https://t.me/BotFather)
-2. Envie `/newbot` e siga as instruções (escolha nome e username)
-3. O BotFather vai te dar um **token** tipo: `7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxx`
-4. Configure no Fly.io:
+2. Envie `/newbot`, escolha nome e username
+3. Copie o token (ex: `7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxx`)
+4. **Adicione o bot como administrador** no canal onde quer postar
+5. Configure:
    ```bash
    fly secrets set TELEGRAM_BOT_TOKEN="7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxx" --app udemy-free-deals
    ```
-5. **Adicione o bot como administrador** no canal onde quer postar (abra o canal → Administradores → Adicionar → procure o bot)
 
-### Configurar Webhook do Discord
+#### 🐦 Twitter API v2 (para busca de trending posts)
 
-1. No Discord, vá no canal desejado → Configurações → Integrações → Webhooks → Novo Webhook
-2. Copie a URL (tipo: `https://discord.com/api/webhooks/1234567890/abcdef...`)
-3. No painel admin do site, vá em **📂 Categorias** → crie/edite uma categoria → adicione a URL no campo "Webhooks Discord"
+1. Acesse [developer.twitter.com](https://developer.twitter.com/en/portal/dashboard)
+2. Crie um projeto e app
+3. Gere o **Bearer Token** (aba Keys and Tokens)
+4. Configure:
+   ```bash
+   fly secrets set TWITTER_BEARER_TOKEN="AAAAAAAAAAAAAAAAAAAAAxxxxxxxx" --app udemy-free-deals
+   ```
 
-### Fluxo de Uso
+> Twitter é usado **apenas para buscar posts em alta** — não posta nada automaticamente.
 
-1. **Criar categoria** (ex: "Python") no admin → `/admin/categories`
-2. **Adicionar canais** — canais Telegram (ex: `@meucanaldetestes`) e/ou webhooks Discord
-3. **Associar cursos** — na listagem de cursos, selecione a categoria para cada curso
-4. **Executar divulgação** — vá em `/admin/promoter` e clique "🚀 Executar Divulgação Agora"
-   - Ou espere o scheduler automático (roda todo dia às 10h)
-5. **Ver logs** — na mesma página, a tabela mostra sucesso/falha de cada envio
+#### 🟠 Reddit API (para busca de comunidades e trending posts)
 
-### Variáveis de Ambiente do Promotor
+1. Acesse [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+2. Clique "create another app" → selecione **"script"**
+3. Preencha nome e redirect URI (`http://localhost:8080`)
+4. Copie o `client_id` (string abaixo do nome do app) e `client_secret`
+5. Configure:
+   ```bash
+   fly secrets set REDDIT_CLIENT_ID="xxxxxx" REDDIT_CLIENT_SECRET="xxxxxx" --app udemy-free-deals
+   ```
 
-| Variável | Obrigatória | Descrição |
-|----------|-------------|-----------|
-| `TELEGRAM_BOT_TOKEN` | Só se usar Telegram | Token do bot criado no @BotFather |
+> Reddit funciona sem credenciais para buscas (usa API pública). Credenciais são necessárias apenas para postagem automática em subreddits.
 
-Discord não precisa de variável extra — as URLs de webhook ficam cadastradas dentro de cada categoria no banco.
+#### 🎮 Discord Webhook
+
+1. No Discord, vá no canal → **Configurações** → **Integrações** → **Webhooks** → **Novo Webhook**
+2. Copie a URL (ex: `https://discord.com/api/webhooks/1234.../abcdef...`)
+3. No admin do site, vá em **📂 Categorias** → edite uma categoria → adicione a URL no campo "discord_webhooks"
+
+> Discord não precisa de variável de ambiente — os webhooks ficam cadastrados por categoria.
+
+### Variáveis de Ambiente Completas
+
+Adicione ao `.env` (local) ou configure via `fly secrets set` (produção):
+
+```env
+# === OBRIGATÓRIOS ===
+DATABASE_URL=postgresql://...          # URL do Supabase
+SECRET_KEY=string-aleatoria-longa      # openssl rand -hex 32
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=SuaSenhaForte
+
+# === PROMOTOR (configurar conforme necessidade) ===
+TELEGRAM_BOT_TOKEN=                    # Token do @BotFather
+TWITTER_BEARER_TOKEN=                  # Para busca de trending posts
+REDDIT_CLIENT_ID=                      # Para busca/postagem Reddit
+REDDIT_CLIENT_SECRET=
+REDDIT_USER_AGENT=UdemyFreeDeals/1.0
+
+# === OPCIONAIS ===
+CRAWLER_INTERVAL_HOURS=6               # Intervalo do crawler (padrão 6h)
+CORS_ORIGINS=https://udemy-free-deals.fly.dev
+```
+
+### Fluxo de Uso Completo
+
+1. **Criar categoria** → `/admin/categories` (ex: "Python")
+2. **Adicionar canais** — Telegram, Discord webhooks, subreddits
+3. **Descobrir comunidades** — clique na categoria → aba "🔍 Descobrir" → "Buscar Comunidades" → "Adicionar"
+4. **Associar cursos** — na listagem de cursos, selecione a categoria
+5. **Divulgar** → `/admin/promoter` → "🚀 Executar Divulgação Agora"
+6. **Trending posts** → clique na categoria → aba "🔥 Trending" → gera comentários para copiar/colar manualmente
+7. **Ver logs** → na página Promoter, tabela mostra sucesso/falha de cada envio
 
 ### Scheduler Automático
 
-- **Crawler:** roda a cada 6 horas (busca novos cursos gratuitos)
-- **Promoter:** roda todo dia às 10h (divulga cursos publicados que ainda não foram promovidos)
+| Job | Frequência | O que faz |
+|-----|-----------|-----------|
+| Crawler | A cada 6 horas | Busca cursos gratuitos em sites de cupons |
+| Promoter | Todo dia às 10h | Divulga cursos publicados nos canais da categoria |
 
 Para alterar horários, edite `backend/app/services/scheduler.py`.
+
+---
+
+## ☁️ Comandos de Deploy (Fly.io)
+
+```bash
+# Listar secrets atuais
+fly secrets list --app udemy-free-deals
+
+# Adicionar/atualizar secrets do promotor
+fly secrets set \
+  TELEGRAM_BOT_TOKEN="seu_token" \
+  TWITTER_BEARER_TOKEN="seu_bearer" \
+  REDDIT_CLIENT_ID="seu_client_id" \
+  REDDIT_CLIENT_SECRET="seu_secret" \
+  --app udemy-free-deals
+
+# Deploy (rebuild com código novo)
+fly deploy --app udemy-free-deals
+
+# Verificar se o scheduler iniciou
+fly logs --app udemy-free-deals
+```
+
+---
+
+## ✅ Checklist Pós-Deploy
+
+- [ ] Site carrega em `https://udemy-free-deals.fly.dev`
+- [ ] Login admin funciona
+- [ ] Crawler encontra cursos (clique "Rodar Crawler" no dashboard)
+- [ ] Categoria criada com canais Telegram/Discord
+- [ ] Curso publicado associado à categoria
+- [ ] "Executar Divulgação" envia mensagem pro Telegram/Discord
+- [ ] Logs de envio aparecem em `/admin/promoter`
+- [ ] "Descobrir Comunidades" retorna resultados (Reddit funciona sem credenciais)
+- [ ] "Trending Posts" funciona (precisa de TWITTER_BEARER_TOKEN para Twitter)
 
 ---
 
